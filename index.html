@@ -1,0 +1,2340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wong's Family Hub</title>
+    <style>
+        :root {
+            --primary: #f472b6;
+            --primary-hover: #ec4899;
+            --bg: #fff0f5;
+            --card-bg: #ffffff;
+            --text: #334155;
+            --text-light: #64748b;
+            --border: #fbcfe8;
+            --breakfast-bg: #fff1f2;
+            --lunch-bg: #fff7ed;
+            --dinner-bg: #fdf2f8;
+            --soup-bg: #f0fdf4;
+            --holiday-red: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            padding: 20px;
+            max-width: 1050px;
+            margin: 0 auto;
+        }
+
+        /* Lock Screen Styling */
+        #lockScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #fff0f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .lock-card {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(244, 114, 182, 0.15);
+            border: 2px solid #fbcfe8;
+            text-align: center;
+            max-width: 320px;
+            width: 90%;
+        }
+
+        .lock-card h2 {
+            color: #831843;
+            margin-bottom: 8px;
+            border-bottom: none;
+            padding-bottom: 0;
+            justify-content: center;
+        }
+
+        .lock-card p {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-bottom: 18px;
+        }
+
+        .lock-card input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 1rem;
+            margin-bottom: 12px;
+            outline: none;
+        }
+
+        .lock-card input:focus {
+            border-color: #f472b6;
+            box-shadow: 0 0 0 2px rgba(244, 114, 182, 0.2);
+        }
+
+        .lock-card button {
+            width: 100%;
+            padding: 10px;
+        }
+
+        #errorMsg {
+            color: #ef4444;
+            font-size: 0.8rem;
+            margin-top: 8px;
+            display: none;
+        }
+
+        #mainContent {
+            display: none;
+        }
+
+        header {
+            background-color: #fce7f3;
+            color: #831843;
+            padding: 22px 24px;
+            border-radius: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border: 1px solid #fbcfe8;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        header h1 {
+            font-size: 1.6rem;
+            margin-bottom: 4px;
+            font-weight: 700;
+        }
+
+        header p {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sync-badge {
+            background: #ffffff;
+            color: #9d174d;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 1px solid #fbcfe8;
+        }
+
+        .btn-logout {
+            background: #ffffff;
+            color: #ef4444;
+            border: 1px solid #fecaca;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-logout:hover {
+            background: #ef4444;
+            color: #ffffff;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: #fce7f3;
+            color: #9d174d;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background-color: #f472b6;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .grid-container {
+                grid-template-columns: 1fr 1fr;
+            }
+            .full-width {
+                grid-column: span 2;
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+            border: 1px solid #fce7f3;
+            margin-bottom: 20px;
+        }
+
+        .card-header-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #fdf2f8;
+            padding-bottom: 10px;
+            margin-bottom: 16px;
+        }
+
+        .card-header-flex h2 {
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-bottom: 0;
+        }
+
+        h2 {
+            font-size: 1.15rem;
+            margin-bottom: 16px;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 2px solid #fdf2f8;
+            padding-bottom: 10px;
+        }
+
+        .btn-edit-toggle {
+            background: #fce7f3;
+            color: #9d174d;
+            border: 1px solid #fbcfe8;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-edit-toggle:hover {
+            background: #f472b6;
+            color: white;
+        }
+
+        .edit-box {
+            display: none;
+            background: #fff0f5;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 14px;
+            border: 1px dashed #fbcfe8;
+        }
+
+        /* Desktop & Schedule Table View */
+        .meal-table, .custom-table, .schedule-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid #fbcfe8;
+            table-layout: fixed;
+        }
+
+        .meal-table th, .meal-table td, 
+        .custom-table th, .custom-table td, 
+        .schedule-table th, .schedule-table td {
+            padding: 8px 6px;
+            text-align: left;
+            font-size: 0.85rem;
+            vertical-align: middle;
+            border-bottom: 2px solid #fbcfe8;
+            word-wrap: break-word;
+        }
+
+        .meal-table th, .custom-table th {
+            color: #831843;
+            font-weight: 700;
+            background: #fce7f3;
+            border-bottom: 3px solid #f472b6;
+        }
+
+        .schedule-table th {
+            color: #831843;
+            font-weight: 700;
+            background: #fce7f3;
+            border-bottom: 3px solid #f472b6;
+            text-align: center;
+        }
+
+        .meal-table tr:last-child td, .custom-table tr:last-child td, .schedule-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .schedule-table td select {
+            padding: 4px 4px;
+            border-radius: 8px;
+            font-weight: 700;
+            color: #9d174d;
+            border: 1px solid #fbcfe8;
+            background: #ffffff;
+            font-size: 0.85rem;
+            text-align: center;
+            text-align-last: center;
+            -webkit-appearance: listbox;
+            appearance: listbox;
+        }
+
+        .select-escort {
+            width: 75px !important;
+            padding: 4px 2px !important;
+            font-size: 0.8rem !important;
+        }
+
+        .schedule-table.locked td select {
+            pointer-events: none;
+            border: none !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            outline: none !important;
+            -webkit-appearance: none !important;
+            -moz-appearance: none !important;
+            appearance: none !important;
+            padding: 0 2px !important;
+            color: #831843 !important;
+            font-weight: 700 !important;
+        }
+
+        .schedule-cell-group {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding-left: 35px;
+            gap: 45px;
+            width: 100%;
+        }
+
+        .time-box-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            background-color: #f1f5f9;
+            padding: 3px 6px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            width: 95px;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .schedule-table.locked .time-box-badge {
+            border-color: transparent;
+        }
+
+        .col-day { 
+            background: #ffffff !important;
+            width: 14%; 
+            white-space: nowrap;
+        }
+
+        .col-bf { 
+            background: var(--breakfast-bg);
+            width: 21.5%;
+        }
+
+        .col-lunch { 
+            background: var(--lunch-bg);
+            width: 21.5%;
+        }
+
+        .col-dinner { 
+            background: var(--dinner-bg);
+            width: 21.5%;
+        }
+
+        .col-soup {
+            background: var(--soup-bg);
+            width: 21.5%;
+        }
+
+        .mobile-meal-container {
+            display: none;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .mobile-day-card {
+            background: #ffffff;
+            border: 2px solid #fbcfe8;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .mobile-day-header {
+            background: #fce7f3;
+            color: #831843;
+            padding: 10px 14px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #fbcfe8;
+        }
+
+        .today-meal-row-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+        }
+
+        .today-meal-row-grid .mobile-meal-section {
+            border-right: 1px solid #fbcfe8;
+            border-bottom: none;
+        }
+
+        .today-meal-row-grid .mobile-meal-section:last-child {
+            border-right: none;
+        }
+
+        @media (max-width: 768px) {
+            .today-meal-row-grid {
+                grid-template-columns: 1fr;
+            }
+            .today-meal-row-grid .mobile-meal-section {
+                border-right: none;
+                border-bottom: 1px solid #fdf2f8;
+            }
+            .meal-table {
+                display: none;
+            }
+            .mobile-meal-container {
+                display: flex;
+            }
+            .schedule-cell-group {
+                padding-left: 10px;
+                gap: 20px;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        .mobile-meal-section {
+            padding: 10px 14px;
+            border-bottom: 1px solid #fdf2f8;
+            font-size: 0.9rem;
+        }
+
+        .mobile-meal-section:last-child {
+            border-bottom: none;
+        }
+
+        .mobile-meal-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        .date-red {
+            color: var(--holiday-red) !important;
+            font-weight: 700;
+        }
+
+        .holiday-tag {
+            display: inline-block;
+            font-size: 0.65rem;
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 2px 5px;
+            border-radius: 6px;
+            margin-top: 4px;
+            font-weight: 600;
+            white-space: normal;
+        }
+
+        .meal-row-container {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            width: 100%;
+        }
+
+        .meal-input-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            width: 100%;
+            margin-bottom: 4px;
+        }
+
+        .meal-input-group input {
+            flex-grow: 1;
+            min-width: 0;
+            white-space: normal;
+            word-break: break-word;
+        }
+
+        input, select, .meal-table input, .form-control, .input-group input {
+            width: 100%;
+            padding: 7px 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            outline: none;
+            background: #ffffff;
+            transition: border-color 0.2s;
+        }
+
+        .select-status {
+            width: 80px !important;
+            padding: 6px 8px !important;
+            cursor: pointer;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            outline: none;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+            text-align: center;
+            text-align-last: center;
+        }
+
+        .select-status option {
+            background-color: #ffffff !important;
+            color: #334155 !important;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        select {
+            padding: 7px 4px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            background: #fff;
+            outline: none;
+            cursor: pointer;
+            text-align: center;
+            text-align-last: center;
+        }
+
+        input:focus, select:focus {
+            border-color: #f472b6;
+            box-shadow: 0 0 0 2px rgba(244, 114, 182, 0.2);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        button {
+            background-color: #f472b6;
+            color: white;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: background-color 0.2s;
+            white-space: nowrap;
+        }
+
+        button:hover {
+            background-color: #ec4899;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .btn-add-meal {
+            background: #fce7f3;
+            color: #9d174d;
+            padding: 4px 10px;
+            font-size: 0.75rem;
+            border-radius: 6px;
+            align-self: flex-start;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+        .btn-add-meal:hover {
+            background: #f472b6;
+            color: white;
+        }
+
+        .food-grid-list {
+            list-style: none;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        @media (min-width: 768px) {
+            .food-grid-list {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .food-grid-list li {
+            background: #fafafa;
+            border: 1px solid #f1f5f9;
+            border-radius: 12px;
+            padding: 10px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .item-list {
+            list-style: none;
+        }
+
+        .item-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 8px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.9rem;
+            gap: 8px;
+        }
+
+        .item-list li:last-child {
+            border-bottom: none;
+        }
+
+        .btn-action {
+            padding: 4px 8px;
+            font-size: 0.75rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            display: none;
+        }
+        
+        .card.editing-mode .btn-action {
+            display: inline-block;
+        }
+
+        .btn-edit-item {
+            background: #e2e8f0;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+        }
+
+        .btn-edit-item:hover {
+            background: #cbd5e1;
+        }
+
+        .btn-finish-item {
+            background: #10b981;
+            color: white;
+            border: none;
+        }
+
+        .btn-finish-item:hover {
+            background: #059669;
+        }
+
+        .btn-delete {
+            background-color: transparent;
+            color: #ef4444;
+            padding: 4px 8px;
+            font-size: 0.8rem;
+            border: 1px solid #fee2e2;
+            border-radius: 8px;
+            cursor: pointer;
+            flex-shrink: 0;
+            display: none;
+        }
+
+        .card.editing-mode .btn-delete {
+            display: inline-block;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            flex-grow: 1;
+        }
+
+        .task-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #f472b6;
+            cursor: pointer;
+        }
+
+        .completed {
+            text-decoration: line-through;
+            color: var(--text-light);
+        }
+
+        .completion-time {
+            display: block;
+            font-size: 0.75rem;
+            color: #10b981;
+            font-weight: 500;
+            margin-top: 2px;
+        }
+
+        .created-time {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--text-light);
+            margin-top: 2px;
+        }
+
+        .empty-hint {
+            color: var(--text-light);
+            text-align: center;
+            padding: 16px;
+            font-size: 0.85rem;
+        }
+
+        .urgent-item {
+            color: #dc2626;
+            font-weight: 700;
+        }
+
+        .btn-urgent-toggle {
+            background: #f1f5f9;
+            color: #94a3b8;
+            border: 1px solid #cbd5e1;
+            padding: 2px 7px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-right: 6px;
+        }
+        .btn-urgent-toggle.active {
+            background: #ef4444;
+            color: #ffffff;
+            border-color: #dc2626;
+        }
+
+        .qty-stepper {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .qty-btn {
+            background: #fce7f3;
+            color: #9d174d;
+            border: 1px solid #fbcfe8;
+            width: 26px;
+            height: 26px;
+            padding: 0;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .qty-btn:hover {
+            background: #f472b6;
+            color: white;
+        }
+
+        .qty-display {
+            width: 36px;
+            text-align: center;
+            font-weight: 700;
+            color: #831843;
+            font-size: 0.9rem;
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 3px 0;
+            user-select: none;
+        }
+
+        .bf-sublabel {
+            font-size: 0.75rem;
+            color: #9d174d;
+            font-weight: 700;
+            margin-bottom: 2px;
+            display: block;
+        }
+
+        .status-badge {
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: inline-block;
+            text-align: center;
+        }
+        .status-25 { background-color: #fee2e2 !important; color: #dc2626 !important; border-color: #fca5a5 !important; }
+        .status-50 { background-color: #ffedd5 !important; color: #ea580c !important; border-color: #fdba74 !important; }
+        .status-1  { background-color: #fef9c3 !important; color: #ca8a04 !important; border-color: #fde047 !important; }
+        .status-15 { background-color: #d1fae5 !important; color: #059669 !important; border-color: #6ee7b7 !important; }
+        .status-2plus { background-color: #bbf7d0 !important; color: #16a34a !important; border-color: #86efac !important; }
+
+        .readonly-meal-text {
+            color: #334155;
+            font-weight: 600;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
+        .btn-hide-day {
+            background: #e2e8f0;
+            color: #475569;
+            border: 1px solid #cbd5e1;
+            padding: 2px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            float: right;
+        }
+        .btn-hide-day:hover {
+            background: #cbd5e1;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Lock Screen -->
+    <div id="lockScreen">
+        <div class="lock-card">
+            <h2>🔒 Wong's Family Hub</h2>
+            <p>Please enter the password to access</p>
+            <input type="password" id="passInput" placeholder="Enter Password" onkeypress="if(event.key==='Enter') checkPassword()">
+            <button onclick="checkPassword()">Unlock</button>
+            <div id="errorMsg">Incorrect Password!</div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="mainContent">
+        <header>
+            <div>
+                <h1>🌸 Wong's Family</h1>
+                <p>Real-time Cloud Household Management Center</p>
+            </div>
+            <div class="header-right">
+                <div id="syncStatus" class="sync-badge">Connecting...</div>
+                <button class="btn-logout" onclick="logout()">🔒 Log Out</button>
+            </div>
+        </header>
+
+        <!-- Sub-page Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" id="tabBtnToday" onclick="switchTab('todayTab')">📌 Today's Overview</button>
+            <button class="tab-btn" onclick="switchTab('current')">📅 Meal Plan</button>
+            <button class="tab-btn" onclick="switchTab('previous')">📜 Upcoming & Previous</button>
+            <button class="tab-btn" onclick="switchTab('inventoryTab')">🛒 Shopping</button>
+        </div>
+
+        <!-- Tab 0: MAIN PAGE - Today's Overview -->
+        <div id="tab-todayTab" class="tab-content active">
+            <!-- 0. Daily Schedule Table (Wake Up & Go Out) -->
+            <div class="card">
+                <div class="card-header-flex">
+                    <h2>⏰ Daily Schedule</h2>
+                    <button class="btn-edit-toggle" id="btnEditSchedule" onclick="toggleScheduleEdit()">✏️</button>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table class="schedule-table locked" id="scheduleTable">
+                        <thead>
+                            <tr>
+                                <th style="width: 18%;"></th>
+                                <th style="width: 41%;">Kayden</th>
+                                <th style="width: 41%;">Kaia</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Row 1: Wake Up -->
+                            <tr>
+                                <td><strong>⏰ Wake Up</strong></td>
+                                <td>
+                                    <div class="schedule-cell-group">
+                                        <div class="time-box-badge">
+                                            <select id="kaydenWakeHour" onchange="updateDailySchedule()">
+                                                <option value=""></option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option>
+                                            </select>
+                                            <strong>:</strong>
+                                            <select id="kaydenWakeMin" onchange="updateDailySchedule()">
+                                                <option value=""></option><option value="00">00</option><option value="10">10</option><option value="15">15</option><option value="20">20</option><option value="25">25</option><option value="30">30</option><option value="35">35</option><option value="40">40</option><option value="45">45</option><option value="50">50</option><option value="55">55</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="schedule-cell-group">
+                                        <div class="time-box-badge">
+                                            <select id="kaiaWakeHour" onchange="updateDailySchedule()">
+                                                <option value=""></option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option>
+                                            </select>
+                                            <strong>:</strong>
+                                            <select id="kaiaWakeMin" onchange="updateDailySchedule()">
+                                                <option value=""></option><option value="00">00</option><option value="10">10</option><option value="15">15</option><option value="20">20</option><option value="25">25</option><option value="30">30</option><option value="35">35</option><option value="40">40</option><option value="45">45</option><option value="50">50</option><option value="55">55</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <!-- Row 2: Go Out -->
+                            <tr>
+                                <td><strong>🚗 Go Out</strong></td>
+                                <td>
+                                    <div class="schedule-cell-group">
+                                        <div class="time-box-badge">
+                                            <select id="kaydenGoHour" onchange="updateDailySchedule()">
+                                                <option value=""></option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option>
+                                            </select>
+                                            <strong>:</strong>
+                                            <select id="kaydenGoMin" onchange="updateDailySchedule()">
+                                                <option value=""></option><option value="00">00</option><option value="10">10</option><option value="15">15</option><option value="20">20</option><option value="25">25</option><option value="30">30</option><option value="35">35</option><option value="40">40</option><option value="45">45</option><option value="50">50</option><option value="55">55</option>
+                                            </select>
+                                        </div>
+                                        <select id="kaydenGoEscort" class="select-escort" onchange="updateDailySchedule()">
+                                            <option value=""></option>
+                                            <option value="Dad">Dad</option>
+                                            <option value="Mum">Mum</option>
+                                            <option value="MJ">MJ</option>
+                                            <option value="M&G">M&G</option>
+                                            <option value="+MJ">+MJ</option>
+                                            <option value="+Glea">+Glea</option>
+                                        </select>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="schedule-cell-group">
+                                        <div class="time-box-badge">
+                                            <select id="kaiaGoHour" onchange="updateDailySchedule()">
+                                                <option value=""></option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option>
+                                            </select>
+                                            <strong>:</strong>
+                                            <select id="kaiaGoMin" onchange="updateDailySchedule()">
+                                                <option value=""></option><option value="00">00</option><option value="10">10</option><option value="15">15</option><option value="20">20</option><option value="25">25</option><option value="30">30</option><option value="35">35</option><option value="40">40</option><option value="45">45</option><option value="50">50</option><option value="55">55</option>
+                                            </select>
+                                        </div>
+                                        <select id="kaiaGoEscort" class="select-escort" onchange="updateDailySchedule()">
+                                            <option value=""></option>
+                                            <option value="Dad">Dad</option>
+                                            <option value="Mum">Mum</option>
+                                            <option value="MJ">MJ</option>
+                                            <option value="M&G">M&G</option>
+                                            <option value="+MJ">+MJ</option>
+                                            <option value="+Glea">+Glea</option>
+                                        </select>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 1. Notice Board -->
+            <div class="card" id="noticeCard">
+                <div class="card-header-flex">
+                    <h2>📌 Family Notice Board</h2>
+                    <button class="btn-edit-toggle" onclick="toggleCardEdit('noticeCard')">✏️</button>
+                </div>
+                <div id="noticeEditBox" class="edit-box">
+                    <div class="input-group" style="margin-bottom:0;">
+                        <input type="text" id="noteTextMain" placeholder="Enter instruction, reminder or message">
+                        <button onclick="addNoteFromMain()">Post</button>
+                    </div>
+                </div>
+                <ul id="mainNoticeList" class="item-list"></ul>
+            </div>
+
+            <!-- 2. Today's / Tomorrow's Meal -->
+            <div class="card">
+                <div id="todayMealCardTitle" class="card-header-flex">
+                    <h2>🍽️ Today's Meals</h2>
+                </div>
+                <div id="todayMealDisplay" class="mobile-day-card"></div>
+            </div>
+
+            <!-- 3. Today's Cleaning & Chores -->
+            <div class="card" id="taskCard">
+                <div class="card-header-flex">
+                    <h2>🧹 Today's Cleaning & Chores</h2>
+                    <button class="btn-edit-toggle" onclick="toggleCardEdit('taskCard')">✏️</button>
+                </div>
+                <div id="taskEditBoxMain" class="edit-box">
+                    <div class="input-group" style="margin-bottom:0;">
+                        <input type="text" id="taskNameMain" placeholder="Add new cleaning task">
+                        <button onclick="addTaskFromMain()">Add Task</button>
+                    </div>
+                </div>
+                <ul id="mainTaskList" class="item-list"></ul>
+            </div>
+        </div>
+
+        <!-- Tab 1: Current Meal Plan -->
+        <div id="tab-current" class="tab-content">
+            <div class="card">
+                <h2 id="dateRangeTitle">🍽️ Weekly Meal Planner</h2>
+                
+                <!-- Desktop Table View -->
+                <div style="overflow-x: auto;">
+                    <table class="meal-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 14%;">Day</th>
+                                <th style="background: #ffe4e6; color: #9f1239; width: 21.5%;">🥐 Breakfast</th>
+                                <th style="background: #ffedd5; color: #9a3412; width: 21.5%;">☀️ Lunch</th>
+                                <th style="background: #fce7f3; color: #9d174d; width: 21.5%;">🌙 Dinner</th>
+                                <th style="background: #dcfce7; color: #166534; width: 21.5%;">🥣 Soup</th>
+                            </tr>
+                        </thead>
+                        <tbody id="mealTableBody"></tbody>
+                    </table>
+                </div>
+
+                <!-- Mobile Card View -->
+                <div id="mobileMealContainer" class="mobile-meal-container"></div>
+            </div>
+
+            <!-- Expanded Food Stock & Freezer Status -->
+            <div class="card" id="foodCard">
+                <div class="card-header-flex">
+                    <h2>📦 Food Stock & Freezer Status</h2>
+                    <button class="btn-edit-toggle" onclick="toggleCardEdit('foodCard')">✏️</button>
+                </div>
+                <div class="input-group">
+                    <input type="text" id="widgetFoodName" placeholder="Food name">
+                    <input type="number" id="widgetFoodQty" placeholder="Qty" value="1" min="0" style="width: 75px;">
+                    <button onclick="addWidgetFoodItem()">Add Item</button>
+                </div>
+                <ul id="foodStockWidgetList" class="food-grid-list"></ul>
+            </div>
+        </div>
+
+        <!-- Tab 2: Upcoming & Previous -->
+        <div id="tab-previous" class="tab-content">
+            <div class="card" id="activityCard">
+                <div class="card-header-flex">
+                    <h2>📅 Upcoming Activities</h2>
+                    <button class="btn-edit-toggle" onclick="toggleCardEdit('activityCard')">✏️</button>
+                </div>
+                <div id="activityEditBox" class="edit-box">
+                    <div class="input-group" style="margin-bottom:0;">
+                        <input type="date" id="actDate" style="width: 150px;">
+                        <input type="text" id="actName" placeholder="Activity details">
+                        <button onclick="addUpcomingActivity()">Add</button>
+                    </div>
+                </div>
+                <ul id="upcomingActivityList" class="item-list"></ul>
+            </div>
+
+            <div class="card">
+                <h2>📜 Previous Meals</h2>
+                <div style="overflow-x: auto;">
+                    <table class="meal-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 14%;">Date</th>
+                                <th style="width: 21.5%;">Breakfast</th>
+                                <th style="width: 21.5%;">Lunch</th>
+                                <th style="width: 21.5%;">Dinner</th>
+                                <th style="width: 21.5%;">Soup</th>
+                            </tr>
+                        </thead>
+                        <tbody id="previousMealTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>🧹 Previous Cleaning & Chores</h2>
+                <div style="overflow-x: auto;">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 18%;">Date</th>
+                                <th style="width: 42%;">Item</th>
+                                <th style="width: 30%;">Completed Date & Time</th>
+                                <th style="width: 10%; text-align: center;"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="previousTaskTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 3: Shopping Sub-page -->
+        <div id="tab-inventoryTab" class="tab-content">
+            <div class="grid-container">
+                <div class="card">
+                    <h2>📦 Household Inventory</h2>
+                    <div class="input-group">
+                        <input type="text" id="inventoryName" placeholder="Item name">
+                        <select id="inventoryStatusSelect" class="select-status status-25" onchange="this.className='select-status ' + getBadgeClass(this.value)">
+                            <option value="25%">25%</option>
+                            <option value="50%">50%</option>
+                            <option value="1">1</option>
+                            <option value="1.5">1.5</option>
+                            <option value="2+">2+</option>
+                        </select>
+                        <button onclick="addInventoryItem()">Add</button>
+                    </div>
+                    <ul id="inventoryList" class="item-list"></ul>
+                </div>
+
+                <div class="card" id="shoppingCard">
+                    <div class="card-header-flex">
+                        <h2>🛒 Shopping List</h2>
+                        <button class="btn-edit-toggle" onclick="toggleCardEdit('shoppingCard')">✏️</button>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" id="customShoppingItem" placeholder="Add item to buy">
+                        <button onclick="addCustomShoppingItem()">Add</button>
+                    </div>
+                    <ul id="shoppingList" class="item-list"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SITE_PASSWORD = "1234";
+
+        function checkPassword() {
+            const input = document.getElementById('passInput').value;
+            if (input === SITE_PASSWORD) {
+                document.getElementById('lockScreen').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+                localStorage.setItem('hub_unlocked_perm', 'true');
+            } else {
+                document.getElementById('errorMsg').style.display = 'block';
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('hub_unlocked_perm');
+            document.getElementById('passInput').value = '';
+            document.getElementById('errorMsg').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'none';
+            document.getElementById('lockScreen').style.display = 'flex';
+        }
+
+        if (localStorage.getItem('hub_unlocked_perm') === 'true') {
+            document.getElementById('lockScreen').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+        }
+
+        function toggleEdit(boxId) {
+            const box = document.getElementById(boxId);
+            if (box.style.display === 'block') {
+                box.style.display = 'none';
+            } else {
+                box.style.display = 'block';
+            }
+        }
+
+        function toggleCardEdit(cardId) {
+            const card = document.getElementById(cardId);
+            card.classList.toggle('editing-mode');
+            const btn = card.querySelector('.btn-edit-toggle');
+            if (btn) {
+                btn.innerText = card.classList.contains('editing-mode') ? '✓' : '✏️';
+            }
+        }
+
+        let scheduleEditing = false;
+        function toggleScheduleEdit() {
+            scheduleEditing = !scheduleEditing;
+            const btn = document.getElementById('btnEditSchedule');
+            const table = document.getElementById('scheduleTable');
+            if (scheduleEditing) {
+                table.classList.remove('locked');
+            } else {
+                table.classList.add('locked');
+            }
+            if (btn) {
+                btn.innerText = scheduleEditing ? '✓' : '✏️';
+            }
+        }
+
+        const BIN_ID = '6ad08042ffd5d160536c9e9a';
+        const API_KEY = '$2a$10$F9Xaygh09D781X3wifsgFueGCSAbHaKqD34xld1wTCdVqGGpUXRuO';
+
+        const hkHolidays = {
+            "01-01": "New Year's Day",
+            "04-03": "Good Friday",
+            "04-04": "Easter Saturday",
+            "04-06": "Easter Monday",
+            "05-01": "Labour Day",
+            "05-25": "Buddha's Birthday",
+            "06-19": "Tuen Ng Festival",
+            "07-01": "HKSAR Day",
+            "09-26": "Mid-Autumn Festival",
+            "10-01": "National Day",
+            "10-18": "Chung Yeung Festival",
+            "10-19": "Chung Yeung Holiday",
+            "12-25": "Christmas Day",
+            "12-26": "Boxing Day"
+        };
+
+        const defaultPreviousTasks = [
+            { date: "15/10/2026", name: "kk", completedAt: "15/10/2026, 11:42 PM" },
+            { date: "15/10/2026", name: "12:00", completedAt: "15/10/2026, 11:52 PM" }
+        ];
+
+        let appData = {
+            dailySchedule: {
+                kaydenWakeHour: "", kaydenWakeMin: "",
+                kaiaWakeHour: "", kaiaWakeMin: "",
+                kaydenGoHour: "", kaydenGoMin: "", kaydenGoEscort: "",
+                kaiaGoHour: "", kaiaGoMin: "", kaiaGoEscort: ""
+            },
+            meals: {},
+            hiddenDays: {},
+            tasks: [],
+            previousTasks: [...defaultPreviousTasks],
+            upcomingActivities: [],
+            lastTaskResetDate: "",
+            foodStock: [
+                { name: "egg", qty: 8, urgent: false },
+                { name: "chicken leg", qty: 2, urgent: true }
+            ],
+            inventory: [
+                { name: "Toilet Paper", status: "25%" },
+                { name: "White Rice", status: "50%" },
+                { name: "Olive Oil", status: "1" },
+                { name: "Milk", status: "1.5" },
+                { name: "Dish Soap", status: "2+" }
+            ],
+            customShopping: [],
+            notes: [
+                { text: "Welcome to Wong's Family Hub!", time: "Today" }
+            ]
+        };
+
+        let editingNoticeIndex = null;
+        let editingTaskIndex = null;
+        let editingActivityIndex = null;
+
+        function getFormattedDate(d = new Date()) {
+            let yyyy = d.getFullYear();
+            let mm = String(d.getMonth() + 1).padStart(2, '0');
+            let dd = String(d.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
+        }
+
+        function getShortFormattedDate(d = new Date()) {
+            let mm = String(d.getMonth() + 1).padStart(2, '0');
+            let dd = String(d.getDate()).padStart(2, '0');
+            return `${dd}/${mm}`;
+        }
+
+        function toggleDayHidden(dateStr) {
+            if (!appData.hiddenDays) appData.hiddenDays = {};
+            appData.hiddenDays[dateStr] = !appData.hiddenDays[dateStr];
+            saveDataToCloud();
+            renderUI();
+        }
+
+        function checkDailyTaskReset() {
+            let todayStr = getFormattedDate();
+            if (!appData.lastTaskResetDate) {
+                appData.lastTaskResetDate = todayStr;
+                return;
+            }
+            if (appData.lastTaskResetDate !== todayStr) {
+                if (appData.tasks && appData.tasks.length > 0) {
+                    if (!appData.previousTasks) appData.previousTasks = [];
+                    
+                    let completedTasks = appData.tasks.filter(t => t.done);
+                    let pendingTasks = appData.tasks.filter(t => !t.done);
+
+                    if (completedTasks.length > 0) {
+                        completedTasks.forEach(ct => {
+                            appData.previousTasks.unshift({
+                                date: appData.lastTaskResetDate,
+                                name: ct.name,
+                                completedAt: ct.completedAt || "Completed"
+                            });
+                        });
+                    }
+                    appData.tasks = pendingTasks;
+                }
+                appData.lastTaskResetDate = todayStr;
+                saveDataToCloud();
+            }
+        }
+
+        function processAutomatedActivities() {
+            let todayStr = getFormattedDate();
+            let dataChanged = false;
+
+            if (!appData.upcomingActivities) appData.upcomingActivities = [];
+            if (!appData.notes) appData.notes = [];
+
+            let remainingActivities = [];
+
+            appData.upcomingActivities.forEach(act => {
+                if (act.date === todayStr) {
+                    if (!act.postedToNotice) {
+                        const shortDateStr = getShortFormattedDate();
+                        appData.notes.unshift({
+                            text: `Today's Activity: ${act.name}`,
+                            time: shortDateStr
+                        });
+                        act.postedToNotice = true;
+                        dataChanged = true;
+                    }
+                    remainingActivities.push(act);
+                } 
+                else if (act.date < todayStr) {
+                    dataChanged = true;
+                } 
+                else {
+                    remainingActivities.push(act);
+                }
+            });
+
+            if (dataChanged) {
+                appData.upcomingActivities = remainingActivities;
+                saveDataToCloud();
+            }
+        }
+
+        function getNext7Days() {
+            let days = [];
+            for (let i = 0; i < 7; i++) {
+                let d = new Date();
+                d.setDate(d.getDate() + i);
+                days.push(getFormattedDate(d));
+            }
+            return days;
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            if (tabName === 'todayTab') {
+                document.querySelectorAll('.tab-btn')[0].classList.add('active');
+                document.getElementById('tab-todayTab').classList.add('active');
+            } else if (tabName === 'current') {
+                document.querySelectorAll('.tab-btn')[1].classList.add('active');
+                document.getElementById('tab-current').classList.add('active');
+            } else if (tabName === 'previous') {
+                document.querySelectorAll('.tab-btn')[2].classList.add('active');
+                document.getElementById('tab-previous').classList.add('active');
+            } else if (tabName === 'inventoryTab') {
+                document.querySelectorAll('.tab-btn')[3].classList.add('active');
+                document.getElementById('tab-inventoryTab').classList.add('active');
+            }
+        }
+
+        async function loadDataFromCloud() {
+            try {
+                const response = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+                    headers: { 'X-Master-Key': API_KEY }
+                });
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.record) {
+                        appData = result.record;
+                        if (!appData.dailySchedule) {
+                            appData.dailySchedule = {
+                                kaydenWakeHour: "", kaydenWakeMin: "",
+                                kaiaWakeHour: "", kaiaWakeMin: "",
+                                kaydenGoHour: "", kaydenGoMin: "", kaydenGoEscort: "",
+                                kaiaGoHour: "", kaiaGoMin: "", kaiaGoEscort: ""
+                            };
+                        }
+                        if (!appData.hiddenDays) appData.hiddenDays = {};
+                        // Ensure today's planner is NEVER hidden on app load/refresh
+                        let todayStr = getFormattedDate();
+                        appData.hiddenDays[todayStr] = false;
+
+                        if (!appData.tasks) appData.tasks = [];
+                        if (!appData.previousTasks || appData.previousTasks.length === 0) {
+                            appData.previousTasks = [...defaultPreviousTasks];
+                        }
+                        if (!appData.upcomingActivities) appData.upcomingActivities = [];
+                        if (!appData.inventory) appData.inventory = [];
+                        if (!appData.foodStock) appData.foodStock = [];
+                        if (!appData.customShopping) appData.customShopping = [];
+                        if (!appData.meals) appData.meals = {};
+
+                        checkDailyTaskReset();
+                        processAutomatedActivities();
+
+                        let activeDays = getNext7Days();
+                        activeDays.forEach(dateStr => {
+                            if (!appData.meals[dateStr]) {
+                                appData.meals[dateStr] = {
+                                    bfKayden: "",
+                                    bfKaia: "",
+                                    bfWeekend: "",
+                                    lunchBase: "",
+                                    lunchDishes: [""],
+                                    dinnerBase: "",
+                                    dinnerDishes: [""],
+                                    soup: [""]
+                                };
+                            } else {
+                                if (appData.meals[dateStr].lunch && !Array.isArray(appData.meals[dateStr].lunchDishes)) {
+                                    if (Array.isArray(appData.meals[dateStr].lunch)) {
+                                        appData.meals[dateStr].lunchDishes = appData.meals[dateStr].lunch.map(i => typeof i === 'object' ? (i.dish || "") : i);
+                                    } else {
+                                        appData.meals[dateStr].lunchDishes = [""];
+                                    }
+                                }
+                                if (appData.meals[dateStr].dinner && !Array.isArray(appData.meals[dateStr].dinnerDishes)) {
+                                    if (Array.isArray(appData.meals[dateStr].dinner)) {
+                                        appData.meals[dateStr].dinnerDishes = appData.meals[dateStr].dinner.map(i => typeof i === 'object' ? (i.dish || "") : i);
+                                    } else {
+                                        appData.meals[dateStr].dinnerDishes = [""];
+                                    }
+                                }
+                                if (!Array.isArray(appData.meals[dateStr].lunchDishes)) appData.meals[dateStr].lunchDishes = [""];
+                                if (!Array.isArray(appData.meals[dateStr].dinnerDishes)) appData.meals[dateStr].dinnerDishes = [""];
+                                if (!Array.isArray(appData.meals[dateStr].soup)) appData.meals[dateStr].soup = [""];
+                            }
+                        });
+
+                        renderUI();
+                        document.getElementById('syncStatus').innerText = 'Synced';
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to load from cloud', error);
+                document.getElementById('syncStatus').innerText = 'Connection Error';
+            }
+        }
+
+        async function saveDataToCloud() {
+            document.getElementById('syncStatus').innerText = 'Syncing...';
+            try {
+                const response = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': API_KEY
+                    },
+                    body: JSON.stringify(appData)
+                });
+                if (response.ok) {
+                    document.getElementById('syncStatus').innerText = 'Synced';
+                }
+            } catch (error) {
+                console.error('Failed to save to cloud', error);
+                document.getElementById('syncStatus').innerText = 'Save Failed';
+            }
+        }
+
+        function updateDailySchedule() {
+            appData.dailySchedule = {
+                kaydenWakeHour: document.getElementById('kaydenWakeHour').value,
+                kaydenWakeMin: document.getElementById('kaydenWakeMin').value,
+
+                kaiaWakeHour: document.getElementById('kaiaWakeHour').value,
+                kaiaWakeMin: document.getElementById('kaiaWakeMin').value,
+
+                kaydenGoHour: document.getElementById('kaydenGoHour').value,
+                kaydenGoMin: document.getElementById('kaydenGoMin').value,
+                kaydenGoEscort: document.getElementById('kaydenGoEscort') ? document.getElementById('kaydenGoEscort').value : "",
+
+                kaiaGoHour: document.getElementById('kaiaGoHour').value,
+                kaiaGoMin: document.getElementById('kaiaGoMin').value,
+                kaiaGoEscort: document.getElementById('kaiaGoEscort') ? document.getElementById('kaiaGoEscort').value : ""
+            };
+            saveDataToCloud();
+        }
+
+        function getBadgeClass(status) {
+            if (status === '25%') return 'status-25';
+            if (status === '50%') return 'status-50';
+            if (status === '1') return 'status-1';
+            if (status === '1.5') return 'status-15';
+            if (status === '2+') return 'status-2plus';
+            return 'status-1';
+        }
+
+        function formatMealDisplaySeparateBase(dishesArr, baseStr) {
+            let validDishes = (dishesArr || []).filter(Boolean);
+            if (validDishes.length === 0) {
+                return baseStr ? `• (${baseStr})` : '-';
+            }
+            let html = validDishes.map(d => `• ${d}`).join('<br>');
+            if (baseStr) {
+                html += `<br><span style="color:var(--text-light); font-weight:700; margin-left: 12px;">(${baseStr})</span>`;
+            }
+            return html;
+        }
+
+        function renderUI() {
+            let now = new Date();
+            let currentHour = now.getHours();
+
+            if (appData.dailySchedule) {
+                document.getElementById('kaydenWakeHour').value = appData.dailySchedule.kaydenWakeHour || "";
+                document.getElementById('kaydenWakeMin').value = appData.dailySchedule.kaydenWakeMin || "";
+
+                document.getElementById('kaiaWakeHour').value = appData.dailySchedule.kaiaWakeHour || "";
+                document.getElementById('kaiaWakeMin').value = appData.dailySchedule.kaiaWakeMin || "";
+
+                document.getElementById('kaydenGoHour').value = appData.dailySchedule.kaydenGoHour || "";
+                document.getElementById('kaydenGoMin').value = appData.dailySchedule.kaydenGoMin || "";
+                
+                if (document.getElementById('kaydenGoEscort')) {
+                    document.getElementById('kaydenGoEscort').value = appData.dailySchedule.kaydenGoEscort || "";
+                }
+
+                document.getElementById('kaiaGoHour').value = appData.dailySchedule.kaiaGoHour || "";
+                document.getElementById('kaiaGoMin').value = appData.dailySchedule.kaiaGoMin || "";
+
+                if (document.getElementById('kaiaGoEscort')) {
+                    document.getElementById('kaiaGoEscort').value = appData.dailySchedule.kaiaGoEscort || "";
+                }
+            }
+
+            let todayDateObj = new Date();
+            let dd = String(todayDateObj.getDate()).padStart(2, '0');
+            let mm = String(todayDateObj.getMonth() + 1).padStart(2, '0');
+            let dayNameShort = todayDateObj.toLocaleDateString('en-US', { weekday: 'short' });
+            
+            const mainTabBtn = document.getElementById('tabBtnToday');
+            if (mainTabBtn) {
+                mainTabBtn.innerText = `📌 Today's (${dd}/${mm}) ${dayNameShort}`;
+            }
+
+            let mealTargetDate = new Date();
+            let isTomorrowMeal = false;
+            if (currentHour >= 19) {
+                mealTargetDate.setDate(mealTargetDate.getDate() + 1);
+                isTomorrowMeal = true;
+            }
+
+            let targetDateStr = getFormattedDate(mealTargetDate);
+            let targetDayNum = mealTargetDate.getDay();
+            let targetDayName = mealTargetDate.toLocaleDateString('en-US', { weekday: 'short' });
+            let targetMmDd = `${String(mealTargetDate.getMonth()+1).padStart(2,'0')}-${String(mealTargetDate.getDate()).padStart(2,'0')}`;
+            let targetDisplayDate = `${String(mealTargetDate.getDate()).padStart(2,'0')}/${String(mealTargetDate.getMonth()+1).padStart(2,'0')} (${targetDayName})`;
+
+            let isWeekend = (targetDayNum === 0 || targetDayNum === 6);
+            let holidayName = hkHolidays[targetMmDd] || null;
+            let isHoliday = holidayName !== null;
+            let isRedDate = isWeekend || isHoliday;
+            let dateClass = isRedDate ? 'date-red' : '';
+            let targetHolidayHtml = holidayName ? ` <span class="holiday-tag">${holidayName}</span>` : '';
+
+            document.getElementById('todayMealCardTitle').innerHTML = `
+                <h2>🍽️ ${isTomorrowMeal ? "Tomorrow's Meal Plan (Prep for Tomorrow)" : "Today's Meals"}</h2>
+            `;
+
+            let val = appData.meals[targetDateStr] || {};
+
+            let breakfastHtml = '';
+            if (!isWeekend && !isHoliday) {
+                breakfastHtml = `
+                    <div style="margin-bottom: 4px;">• Kayden: ${val.bfKayden || '-'}</div>
+                    <div>• Kaia: ${val.bfKaia || '-'}</div>
+                `;
+            } else {
+                breakfastHtml = `<div>• ${val.bfWeekend || '-'}</div>`;
+            }
+
+            let lunchDishesArr = Array.isArray(val.lunchDishes) ? val.lunchDishes : (val.lunch ? val.lunch : []);
+            let lunchText = formatMealDisplaySeparateBase(lunchDishesArr, val.lunchBase);
+
+            let dinnerDishesArr = Array.isArray(val.dinnerDishes) ? val.dinnerDishes : (val.dinner ? val.dinner : []);
+            let dinnerText = formatMealDisplaySeparateBase(dinnerDishesArr, val.dinnerBase);
+
+            let soupText = '-';
+            let soupArr = Array.isArray(val.soup) ? val.soup : [];
+            let validSoups = soupArr.filter(Boolean);
+            if (validSoups.length > 0) {
+                soupText = validSoups.map(s => `• ${s}`).join('<br>');
+            }
+
+            document.getElementById('todayMealDisplay').innerHTML = `
+                <div class="mobile-day-header">
+                    <span class="${dateClass}">${targetDisplayDate}</span>
+                    ${targetHolidayHtml}
+                </div>
+                <div class="today-meal-row-grid">
+                    <div class="mobile-meal-section" style="background: var(--breakfast-bg);">
+                        <div class="mobile-meal-title" style="color: #9f1239;">🥐 Breakfast</div>
+                        <div class="readonly-meal-text">${breakfastHtml}</div>
+                    </div>
+                    <div class="mobile-meal-section" style="background: var(--lunch-bg);">
+                        <div class="mobile-meal-title" style="color: #9a3412;">☀️ Lunch</div>
+                        <div class="readonly-meal-text">${lunchText}</div>
+                    </div>
+                    <div class="mobile-meal-section" style="background: var(--dinner-bg);">
+                        <div class="mobile-meal-title" style="color: #9d174d;">🌙 Dinner</div>
+                        <div class="readonly-meal-text">${dinnerText}</div>
+                    </div>
+                    <div class="mobile-meal-section" style="background: var(--soup-bg);">
+                        <div class="mobile-meal-title" style="color: #166534;">🥣 Soup</div>
+                        <div class="readonly-meal-text">${soupText}</div>
+                    </div>
+                </div>
+            `;
+
+            let activeDays = getNext7Days();
+            let startDate = new Date(activeDays[0]);
+            let endDate = new Date(activeDays[6]);
+            let formatDate = (d) => `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
+            document.getElementById('dateRangeTitle').innerText = `🍽️ Weekly Meal Planner (${formatDate(startDate)} - ${formatDate(endDate)})`;
+
+            const mealBody = document.getElementById('mealTableBody');
+            const mobileContainer = document.getElementById('mobileMealContainer');
+            mealBody.innerHTML = '';
+            mobileContainer.innerHTML = '';
+
+            let todayFormatted = getFormattedDate();
+
+            activeDays.forEach(dateStr => {
+                let d = new Date(dateStr);
+                let dayNum = d.getDay();
+                let dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
+                let mmdd = `${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+                let displayDate = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')} (${dayName})`;
+
+                let isWk = (dayNum === 0 || dayNum === 6);
+                let holName = hkHolidays[mmdd] || null;
+                let isHol = holName !== null;
+                let isRed = isWk || isHol;
+
+                let dtClass = isRed ? 'date-red' : '';
+                let holHtml = holName ? `<br><span class="holiday-tag">${holName}</span>` : '';
+                let mobHolHtml = holName ? ` <span class="holiday-tag">${holName}</span>` : '';
+
+                let dayVal = appData.meals[dateStr] || {};
+                
+                // Today's planner must always preset show (v)
+                if (dateStr === todayFormatted) {
+                    if (appData.hiddenDays) appData.hiddenDays[dateStr] = false;
+                }
+
+                let isHidden = appData.hiddenDays && appData.hiddenDays[dateStr];
+                let hideBtnText = isHidden ? 'v' : '^';
+
+                let bfHTML = '';
+                if (!isWk && !isHol) {
+                    bfHTML = `
+                        <div style="margin-bottom: 6px;">
+                            <span class="bf-sublabel">Kayden:</span>
+                            <input type="text" value="${dayVal.bfKayden || ''}" onchange="updateBreakfast('${dateStr}', 'bfKayden', this.value)" placeholder="Breakfast">
+                        </div>
+                        <div>
+                            <span class="bf-sublabel">Kaia:</span>
+                            <input type="text" value="${dayVal.bfKaia || ''}" onchange="updateBreakfast('${dateStr}', 'bfKaia', this.value)" placeholder="Breakfast">
+                        </div>
+                    `;
+                } else {
+                    bfHTML = `
+                        <div>
+                            <input type="text" value="${dayVal.bfWeekend || ''}" onchange="updateBreakfast('${dateStr}', 'bfWeekend', this.value)" placeholder="Breakfast">
+                        </div>
+                    `;
+                }
+
+                // Lunch: One base dropdown at top + dish items
+                let lunchBaseVal = dayVal.lunchBase || "";
+                let lunchBaseSelectHtml = `
+                    <select style="margin-bottom: 6px;" onchange="updateMealBase('${dateStr}', 'lunchBase', this.value)">
+                        <option value="" ${lunchBaseVal === '' ? 'selected' : ''}></option>
+                        <option value="Rice" ${lunchBaseVal === 'Rice' ? 'selected' : ''}>Rice</option>
+                        <option value="Spaghetti" ${lunchBaseVal === 'Spaghetti' ? 'selected' : ''}>Spaghetti</option>
+                        <option value="Macaroni" ${lunchBaseVal === 'Macaroni' ? 'selected' : ''}>Macaroni</option>
+                        <option value="Udon" ${lunchBaseVal === 'Udon' ? 'selected' : ''}>Udon</option>
+                    </select>
+                `;
+
+                let lunHTML = lunchBaseSelectHtml;
+                let lunDishes = Array.isArray(dayVal.lunchDishes) ? dayVal.lunchDishes : (dayVal.lunch ? dayVal.lunch : [""]);
+                if (lunDishes.length === 0) lunDishes = [""];
+
+                lunDishes.forEach((dishName, idx) => {
+                    lunHTML += `
+                        <div class="meal-input-group">
+                            <input type="text" value="${dishName || ''}" onchange="updateMealDish('${dateStr}', 'lunchDishes', ${idx}, this.value)" placeholder="Dish name">
+                            ${lunDishes.length > 1 ? `<button class="btn-delete" onclick="removeMealDish('${dateStr}', 'lunchDishes',${idx})">×</button>` : ''}
+                        </div>
+                    `;
+                });
+                lunHTML += `<button class="btn-add-meal" onclick="addMealDish('${dateStr}', 'lunchDishes')">+ Add Dish</button>`;
+
+                // Dinner: One base dropdown at top + dish items
+                let dinnerBaseVal = dayVal.dinnerBase || "";
+                let dinnerBaseSelectHtml = `
+                    <select style="margin-bottom: 6px;" onchange="updateMealBase('${dateStr}', 'dinnerBase', this.value)">
+                        <option value="" ${dinnerBaseVal === '' ? 'selected' : ''}></option>
+                        <option value="Rice" ${dinnerBaseVal === 'Rice' ? 'selected' : ''}>Rice</option>
+                        <option value="Spaghetti" ${dinnerBaseVal === 'Spaghetti' ? 'selected' : ''}>Spaghetti</option>
+                        <option value="Macaroni" ${dinnerBaseVal === 'Macaroni' ? 'selected' : ''}>Macaroni</option>
+                        <option value="Udon" ${dinnerBaseVal === 'Udon' ? 'selected' : ''}>Udon</option>
+                    </select>
+                `;
+
+                let dinHTML = dinnerBaseSelectHtml;
+                let dinDishes = Array.isArray(dayVal.dinnerDishes) ? dayVal.dinnerDishes : (dayVal.dinner ? dayVal.dinner : [""]);
+                if (dinDishes.length === 0) dinDishes = [""];
+
+                dinDishes.forEach((dishName, idx) => {
+                    dinHTML += `
+                        <div class="meal-input-group">
+                            <input type="text" value="${dishName || ''}" onchange="updateMealDish('${dateStr}', 'dinnerDishes', ${idx}, this.value)" placeholder="Dish name">
+                            ${dinDishes.length > 1 ? `<button class="btn-delete" onclick="removeMealDish('${dateStr}', 'dinnerDishes',${idx})">×</button>` : ''}
+                        </div>
+                    `;
+                });
+                dinHTML += `<button class="btn-add-meal" onclick="addMealDish('${dateStr}', 'dinnerDishes')">+ Add Dish</button>`;
+
+                // Soup
+                let soupHTML = '';
+                let soupArrEditable = Array.isArray(dayVal.soup) ? dayVal.soup : [""];
+                if (soupArrEditable.length === 0) soupArrEditable = [""];
+
+                soupArrEditable.forEach((soupName, idx) => {
+                    soupHTML += `
+                        <div class="meal-input-group">
+                            <input type="text" value="${soupName || ''}" onchange="updateSoupItem('${dateStr}', ${idx}, this.value)" placeholder="Soup name">
+                            ${soupArrEditable.length > 1 ? `<button class="btn-delete" onclick="removeSoupItem('${dateStr}',${idx})">×</button>` : ''}
+                        </div>
+                    `;
+                });
+                soupHTML += `<button class="btn-add-meal" onclick="addSoupItem('${dateStr}')">+ Add Soup</button>`;
+
+                let displayStyle = isHidden ? 'display: none;' : '';
+
+                mealBody.innerHTML += `
+                    <tr>
+                        <td class="col-day">
+                            <strong class="${dtClass}">${displayDate}</strong>${holHtml}
+                            <button class="btn-hide-day" onclick="toggleDayHidden('${dateStr}')">${hideBtnText}</button>
+                        </td>
+                        <td class="col-bf" style="${displayStyle}">${bfHTML}</td>
+                        <td class="col-lunch" style="${displayStyle}"><div class="meal-row-container">${lunHTML}</div></td>
+                        <td class="col-dinner" style="${displayStyle}"><div class="meal-row-container">${dinHTML}</div></td>
+                        <td class="col-soup" style="${displayStyle}"><div class="meal-row-container">${soupHTML}</div></td>
+                    </tr>
+                `;
+
+                mobileContainer.innerHTML += `
+                    <div class="mobile-day-card">
+                        <div class="mobile-day-header">
+                            <div>
+                                <span class="${dtClass}">${displayDate}</span>
+                                ${mobHolHtml}
+                            </div>
+                            <button class="btn-hide-day" onclick="toggleDayHidden('${dateStr}')">${hideBtnText}</button>
+                        </div>
+                        ${!isHidden ? `
+                            <div class="mobile-meal-section" style="background: var(--breakfast-bg);">
+                                <div class="mobile-meal-title" style="color: #9f1239;">🥐 Breakfast</div>
+                                ${bfHTML}
+                            </div>
+                            <div class="mobile-meal-section" style="background: var(--lunch-bg);">
+                                <div class="mobile-meal-title" style="color: #9a3412;">☀️ Lunch</div>
+                                <div class="meal-row-container">${lunHTML}</div>
+                            </div>
+                            <div class="mobile-meal-section" style="background: var(--dinner-bg);">
+                                <div class="mobile-meal-title" style="color: #9d174d;">🌙 Dinner</div>
+                                <div class="meal-row-container">${dinHTML}</div>
+                            </div>
+                            <div class="mobile-meal-section" style="background: var(--soup-bg);">
+                                <div class="mobile-meal-title" style="color: #166534;">🥣 Soup</div>
+                                <div class="meal-row-container">${soupHTML}</div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+
+            renderTasksUI();
+            renderNotesUI();
+            renderUpcomingActivitiesUI();
+
+            const prevMealBody = document.getElementById('previousMealTableBody');
+            prevMealBody.innerHTML = '';
+            let todayStr = getFormattedDate();
+            let prevDates = Object.keys(appData.meals).filter(d => d < todayStr).sort().reverse();
+
+            if (prevDates.length === 0) {
+                prevMealBody.innerHTML = `<tr><td colspan="5" class="empty-hint">No previous meals recorded yet.</td></tr>`;
+            } else {
+                prevDates.forEach(dateStr => {
+                    let prevVal = appData.meals[dateStr];
+                    let bfText = prevVal.bfWeekend ? prevVal.bfWeekend : `Kayden: ${prevVal.bfKayden || '-'}, Kaia: ${prevVal.bfKaia || '-'}`;
+                    
+                    let prevLunDishes = Array.isArray(prevVal.lunchDishes) ? prevVal.lunchDishes : [];
+                    let lunchText = formatMealDisplaySeparateBase(prevLunDishes, prevVal.lunchBase);
+
+                    let prevDinDishes = Array.isArray(prevVal.dinnerDishes) ? prevVal.dinnerDishes : [];
+                    let dinnerText = formatMealDisplaySeparateBase(prevDinDishes, prevVal.dinnerBase);
+
+                    let prevSoupArr = Array.isArray(prevVal.soup) ? prevVal.soup : [];
+                    let soupText = prevSoupArr.filter(Boolean).join(', ') || '-';
+
+                    prevMealBody.innerHTML += `
+                        <tr>
+                            <td><strong>${dateStr}</strong></td>
+                            <td class="col-bf">${bfText}</td>
+                            <td class="col-lunch">${lunchText}</td>
+                            <td class="col-dinner">${dinnerText}</td>
+                            <td class="col-soup">${soupText}</td>
+                        </tr>
+                    `;
+                });
+            }
+
+            const prevTaskTableBody = document.getElementById('previousTaskTableBody');
+            prevTaskTableBody.innerHTML = '';
+
+            let listToRender = (appData.previousTasks && appData.previousTasks.length > 0) ? appData.previousTasks : defaultPreviousTasks;
+
+            listToRender.forEach((archive, index) => {
+                let archiveDate = archive.date || '-';
+                let taskName = archive.name || '-';
+                let completedTime = archive.completedAt || '-';
+
+                prevTaskTableBody.innerHTML += `
+                    <tr>
+                        <td><strong>${archiveDate}</strong></td>
+                        <td>${taskName}</td>
+                        <td style="color: #334155; font-weight: 400;">${completedTime}</td>
+                        <td style="text-align: center;">
+                            <button class="btn-delete" style="display:inline-block;" onclick="deletePreviousTask(${index})">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            const foodStockWidgetList = document.getElementById('foodStockWidgetList');
+            foodStockWidgetList.innerHTML = '';
+            if (!appData.foodStock || appData.foodStock.length === 0) {
+                foodStockWidgetList.innerHTML = `<li class="empty-hint" style="grid-column: span 2;">No food stock recorded</li>`;
+            } else {
+                appData.foodStock.forEach((item, index) => {
+                    let urgentClass = item.urgent ? 'btn-urgent-toggle active' : 'btn-urgent-toggle';
+                    let currentQty = (item.qty !== undefined && item.qty !== null) ? item.qty : 1;
+                    foodStockWidgetList.innerHTML += `
+                        <li>
+                            <div style="display:flex; align-items:center;">
+                                <button class="${urgentClass}" onclick="toggleFoodStockUrgent(${index})">!</button>
+                                <span class="${item.urgent ? 'urgent-item' : ''}" style="font-weight:600;">${item.name}</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div class="qty-stepper">
+                                    <button class="qty-btn" onclick="changeFoodStockQty(${index}, -1)">-</button>
+                                    <div class="qty-display">${currentQty}</div>
+                                    <button class="qty-btn" onclick="changeFoodStockQty(${index}, 1)">+</button>
+                                </div>
+                                <button class="btn-delete" onclick="deleteFoodStock(${index})">Delete</button>
+                            </div>
+                        </li>
+                    `;
+                });
+            }
+
+            const invList = document.getElementById('inventoryList');
+            invList.innerHTML = '';
+            if (!appData.inventory || appData.inventory.length === 0) {
+                invList.innerHTML = `<li class="empty-hint">No inventory records</li>`;
+            } else {
+                appData.inventory.forEach((item, index) => {
+                    let badgeClass = getBadgeClass(item.status);
+                    invList.innerHTML += `
+                        <li>
+                            <span>${item.name}</span>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <select class="select-status ${badgeClass}" onchange="updateInventoryStatus(${index}, this.value)">
+                                    <option value="25%" ${item.status === '25%' ? 'selected' : ''}>25%</option>
+                                    <option value="50%" ${item.status === '50%' ? 'selected' : ''}>50%</option>
+                                    <option value="1" ${item.status === '1' ? 'selected' : ''}>1</option>
+                                    <option value="1.5" ${item.status === '1.5' ? 'selected' : ''}>1.5</option>
+                                    <option value="2+" ${item.status === '2+' ? 'selected' : ''}>2+</option>
+                                </select>
+                                <button class="btn-delete" style="display:inline-block;" onclick="deleteInventory(${index})">×</button>
+                            </div>
+                        </li>
+                    `;
+                });
+            }
+
+            const shopList = document.getElementById('shoppingList');
+            shopList.innerHTML = '';
+            const lowInventoryItems = (appData.inventory || []).filter(i => i.status === '25%' || i.status === '50%' || i.status === '1');
+            const customShopping = appData.customShopping || [];
+
+            if (lowInventoryItems.length === 0 && customShopping.length === 0) {
+                shopList.innerHTML = `<li class="empty-hint">No items on the shopping list 🎉</li>`;
+            } else {
+                lowInventoryItems.forEach(item => {
+                    let badgeClass = getBadgeClass(item.status);
+                    shopList.innerHTML += `
+                        <li>
+                            <span>${item.name}</span>
+                            <span class="status-badge ${badgeClass}">${item.status}</span>
+                        </li>
+                    `;
+                });
+                customShopping.forEach((item, index) => {
+                    shopList.innerHTML += `
+                        <li>
+                            <span>${item}</span>
+                            <button class="btn-delete" onclick="deleteCustomShopping(${index})">Delete</button>
+                        </li>
+                    `;
+                });
+            }
+        }
+
+        function deletePreviousTask(index) {
+            if (!appData.previousTasks || appData.previousTasks.length === 0) {
+                appData.previousTasks = [...defaultPreviousTasks];
+            }
+            appData.previousTasks.splice(index, 1);
+            saveDataToCloud();
+            renderUI();
+        }
+
+        function renderTasksUI() {
+            const taskListMain = document.getElementById('mainTaskList');
+            let tasksHtml = '';
+
+            if (!appData.tasks || appData.tasks.length === 0) {
+                tasksHtml = `<li class="empty-hint">No cleaning tasks</li>`;
+            } else {
+                appData.tasks.forEach((task, index) => {
+                    let timeInfo = (task.done && task.completedAt) ? `<span class="completion-time">✓ Completed: ${task.completedAt}</span>` : '';
+                    let createdInfo = task.createdAt ? `<span class="created-time">Added: ${task.createdAt}</span>` : '';
+                    let isEditing = (editingTaskIndex === index);
+
+                    if (isEditing) {
+                        tasksHtml += `
+                            <li>
+                                <input type="text" id="editTaskInput_${index}" value="${task.name}" style="flex-grow:1; margin-right:8px;">
+                                <div style="display:flex; gap:6px;">
+                                    <button class="btn-action btn-finish-item" onclick="saveTaskEdit(${index})" style="display:inline-block;">✓</button>
+                                    <button class="btn-delete" onclick="deleteTask(${index})" style="display:inline-block;">🗑️</button>
+                                </div>
+                            </li>
+                        `;
+                    } else {
+                        tasksHtml += `
+                            <li>
+                                <div class="task-item" onclick="toggleTask(${index})">
+                                    <input type="checkbox" ${task.done ? 'checked' : ''} onclick="event.stopPropagation(); toggleTask(${index})">
+                                    <div>
+                                        <span class="${task.done ? 'completed' : ''}">${task.name}</span>
+                                        ${createdInfo}
+                                        ${timeInfo}
+                                    </div>
+                                </div>
+                                <button class="btn-action btn-edit-item" onclick="setEditingTask(${index})">✏️</button>
+                            </li>
+                        `;
+                    }
+                });
+            }
+
+            if (taskListMain) taskListMain.innerHTML = tasksHtml;
+        }
+
+        function renderNotesUI() {
+            const mainNoticeList = document.getElementById('mainNoticeList');
+            let notesHtml = '';
+
+            if (!appData.notes || appData.notes.length === 0) {
+                notesHtml = `<li class="empty-hint">No notes or instructions</li>`;
+            } else {
+                appData.notes.forEach((note, index) => {
+                    let isEditing = (editingNoticeIndex === index);
+                    if (isEditing) {
+                        notesHtml += `
+                            <li>
+                                <input type="text" id="editNoteInput_${index}" value="${note.text}" style="flex-grow:1; margin-right:8px;">
+                                <div style="display:flex; gap:6px;">
+                                    <button class="btn-action btn-finish-item" onclick="saveNoteEdit(${index})" style="display:inline-block;">✓</button>
+                                    <button class="btn-delete" onclick="deleteNote(${index})" style="display:inline-block;">🗑️</button>
+                                </div>
+                            </li>
+                        `;
+                    } else {
+                        notesHtml += `
+                            <li>
+                                <div>
+                                    <span>${note.text}</span>
+                                    <br><small style="color:var(--text-light);">${note.time}</small>
+                                </div>
+                                <button class="btn-action btn-edit-item" onclick="setEditingNotice(${index})">✏️</button>
+                            </li>
+                        `;
+                    }
+                });
+            }
+
+            if (mainNoticeList) mainNoticeList.innerHTML = notesHtml;
+        }
+
+        function renderUpcomingActivitiesUI() {
+            const list = document.getElementById('upcomingActivityList');
+            let html = '';
+
+            if (!appData.upcomingActivities || appData.upcomingActivities.length === 0) {
+                html = `<li class="empty-hint">No upcoming activities added yet</li>`;
+            } else {
+                appData.upcomingActivities.forEach((act, index) => {
+                    let isEditing = (editingActivityIndex === index);
+                    
+                    let dParts = act.date.split('-');
+                    let formattedDispDate = dParts.length === 3 ? `${dParts[2]}/${dParts[1]}` : act.date;
+
+                    if (isEditing) {
+                        html += `
+                            <li>
+                                <input type="date" id="editActDate_${index}" value="${act.date}" style="width:130px; margin-right:4px;">
+                                <input type="text" id="editActName_${index}" value="${act.name}" style="flex-grow:1; margin-right:8px;">
+                                <div style="display:flex; gap:6px;">
+                                    <button class="btn-action btn-finish-item" onclick="saveActivityEdit(${index})" style="display:inline-block;">✓</button>
+                                    <button class="btn-delete" onclick="deleteUpcomingActivity(${index})" style="display:inline-block;">🗑️</button>
+                                </div>
+                            </li>
+                        `;
+                    } else {
+                        html += `
+                            <li>
+                                <div>
+                                    <strong style="color:var(--primary);">${formattedDispDate}</strong>
+                                    <span style="margin-left:8px;">${act.name}</span>
+                                </div>
+                                <button class="btn-action btn-edit-item" onclick="setEditingActivity(${index})">✏️</button>
+                            </li>
+                        `;
+                    }
+                });
+            }
+            if (list) list.innerHTML = html;
+        }
+
+        function setEditingNotice(index) {
+            editingNoticeIndex = index;
+            renderNotesUI();
+        }
+
+        function saveNoteEdit(index) {
+            const input = document.getElementById(`editNoteInput_${index}`);
+            if (input && input.value.trim()) {
+                appData.notes[index].text = input.value.trim();
+                editingNoticeIndex = null;
+                saveDataToCloud();
+                renderNotesUI();
+            }
+        }
+
+        function setEditingTask(index) {
+            editingTaskIndex = index;
+            renderTasksUI();
+        }
+
+        function saveTaskEdit(index) {
+            const input = document.getElementById(`editTaskInput_${index}`);
+            if (input && input.value.trim()) {
+                appData.tasks[index].name = input.value.trim();
+                editingTaskIndex = null;
+                saveDataToCloud();
+                renderTasksUI();
+            }
+        }
+
+        function addUpcomingActivity() {
+            const date = document.getElementById('actDate').value;
+            const name = document.getElementById('actName').value.trim();
+            if (!date || !name) return alert('Please enter both date and activity details');
+            if (!appData.upcomingActivities) appData.upcomingActivities = [];
+            
+            appData.upcomingActivities.push({ date, name, postedToNotice: false });
+            appData.upcomingActivities.sort((a, b) => a.date.localeCompare(b.date));
+            
+            document.getElementById('actDate').value = '';
+            document.getElementById('actName').value = '';
+            toggleEdit('activityEditBox');
+            processAutomatedActivities();
+            saveDataToCloud();
+            renderUI();
+        }
+
+        function setEditingActivity(index) {
+            editingActivityIndex = index;
+            renderUpcomingActivitiesUI();
+        }
+
+        function saveActivityEdit(index) {
+            const dateInput = document.getElementById(`editActDate_${index}`);
+            const nameInput = document.getElementById(`editActName_${index}`);
+            if (dateInput && nameInput && nameInput.value.trim()) {
+                appData.upcomingActivities[index].date = dateInput.value;
+                appData.upcomingActivities[index].name = nameInput.value.trim();
+                appData.upcomingActivities.sort((a, b) => a.date.localeCompare(b.date));
+                editingActivityIndex = null;
+                processAutomatedActivities();
+                saveDataToCloud();
+                renderUI();
+            }
+        }
+
+        function deleteUpcomingActivity(index) {
+            appData.upcomingActivities.splice(index, 1);
+            editingActivityIndex = null;
+            saveDataToCloud();
+            renderUI();
+        }
+
+        function updateBreakfast(dateStr, field, value) {
+            if (!appData.meals[dateStr]) appData.meals[dateStr] = {};
+            appData.meals[dateStr][field] = value;
+            saveDataToCloud();
+            renderUI();
+        }
+
+        function updateMealBase(dateStr, baseField, value) {
+            if (!appData.meals[dateStr]) appData.meals[dateStr] = {};
+            appData.meals[dateStr][baseField] = value;
+            saveDataToCloud();
+            renderUI();
+        }
+
+        function updateMealDish(dateStr, dishesField, index, value) {
+            if (!appData.meals[dateStr]) appData.meals[dateStr] = {};
+            if (!Array.isArray(appData.meals[dateStr][dishesField])) {
+                appData.meals[dateStr][dishesField] = [""];
+            }
+            appData.meals[dateStr][dishesField][index] = value;
+            saveDataToCloud();
+            renderUI();
+        }
+
+        function addMealDish(dateStr, dishesField) {
+            if (!appData.meals[dateStr]) appData.meals[dateStr] = {};
+            if (!Array.isArray(appData.meals[dateStr][dishesField])) {
+                appData.meals[dateStr][dishesField] = [""];
+            }
+            appData.meals[dateStr][dishesField].push("");
+            saveDataToCloud();
+            renderUI();
+        }
+
+        function removeMealDish(dateStr, dishesField, index) {
+            if (appData.meals[dateStr] && Array.isArray(appData.meals[dateStr][dishesField])) {
+                appData.meals[dateStr][dishesField].splice(index, 1);
+                saveDataToCloud();
+                renderUI();
+            }
+        }
+
+        function updateSoupItem(dateStr, index, value) {
+            if (!appData.meals[dateStr]) appData.meals[dateStr] = {};
+            if (!Array.isArray(appData.meals[dateStr].soup)) {
+                appData.meals[dateStr].soup = [""];
+            }
+            appData.meals[dateStr].soup[index] = value;
+            saveDataToCloud();
+            renderUI();
+        }
+
+        function addSoupItem(dateStr) {
+            if (!appData.meals[dateStr]) appData.meals[dateStr] = {};
+            if (!Array.isArray(appData.meals[dateStr].soup)) {
+                appData.meals[dateStr].soup = [""];
+            }
+            appData.meals[dateStr].soup.push("");
+            saveDataToCloud();
+            renderUI();
+        }
+
+        function removeSoupItem(dateStr, index) {
+            if (appData.meals[dateStr] && Array.isArray(appData.meals[dateStr].soup)) {
+                appData.meals[dateStr].soup.splice(index, 1);
+                saveDataToCloud();
+                renderUI();
+            }
+        }
+
+        function addWidgetFoodItem() {
+            const name = document.getElementById('widgetFoodName').value.trim();
+            const qty = parseInt(document.getElementById('widgetFoodQty').value) || 1;
+            if (!name) return alert('Please enter food name');
+            if (!appData.foodStock) appData.foodStock = [];
+            appData.foodStock.push({ name, qty, urgent: false });
+            document.getElementById('widgetFoodName').value = '';
+            document.getElementById('widgetFoodQty').value = '1';
+            saveDataToCloud();
+            renderUI();
+        }
+
+        function changeFoodStockQty(index, delta) {
+            if (!appData.foodStock[index].qty) appData.foodStock[index].qty = 0;
+            appData.foodStock[index].qty = Math.max(0, appData.foodStock[index].qty + delta);
+            saveDataToCloud();
+            renderUI();
+        }
+
+        function toggleFoodStockUrgent(index) {
+            appData.foodStock[index].urgent = !appData.foodStock[index].urgent;
+            saveDataToCloud();
+            renderUI();
+        }
+
+        function deleteFoodStock(index) {
+            appData.foodStock.splice(index, 1);
+            saveDataToCloud();
+            renderUI();
+        }
+
+        function addTaskFromMain() {
+            const name = document.getElementById('taskNameMain').value.trim();
+            if (!name) return alert('Please enter a task name');
+            if (!appData.tasks) appData.tasks = [];
+            const shortDateStr = getShortFormattedDate();
+            appData.tasks.push({ name, done: false, completedAt: "", createdAt: shortDateStr });
+            document.getElementById('taskNameMain').value = '';
+            toggleEdit('taskEditBoxMain');
+            saveDataToCloud();
+            renderUI();
+        }
+
+        function toggleTask(index) {
+            appData.tasks[index].done = !appData.tasks[index].done;
+            if (appData.tasks[index].done) {
+                const now = new Date();
+                const shortDateStr = getShortFormattedDate(now);
+                const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+                appData.tasks[index].completedAt = `${shortDateStr}, ${timeStr}`;
+            } else {
+                appData.tasks[index].completedAt = "";
+            }
+            saveDataToCloud();
+            renderUI();
+        }
+
+        function deleteTask(index) {
+            appData.tasks.splice(index, 1);
+            editingTaskIndex = null;
+            saveDataToCloud();
+            renderUI();
+        }
+
+        function addInventoryItem() {
+            const name = document.getElementById('inventoryName').value.trim();
+            const status = document.getElementById('inventoryStatusSelect').value;
+            if (!name) return alert('Please enter an item name');
+            if (!appData.inventory) appData.inventory = [];
+            appData.inventory.push({ name, status });
+            document.getElementById('inventoryName').value = '';
+            saveDataToCloud();
+            renderUI();
+        }
+
+        function updateInventoryStatus(index, newStatus) {
+            appData.inventory[index].status = newStatus;
+            saveDataToCloud();
+            renderUI();
+        }
+
+        function deleteInventory(index) {
+            appData.inventory.splice(index, 1);
+            saveDataToCloud();
+            renderUI();
+        }
+
+        function addCustomShoppingItem() {
+            const item = document.getElementById('customShoppingItem').value.trim();
+            if (!item) return alert('Please enter an item name');
+            if (!appData.customShopping) appData.customShopping = [];
+            appData.customShopping.push(item);
+            document.getElementById('customShoppingItem').value = '';
+            saveDataToCloud();
+            renderUI();
+        }
+
+        function deleteCustomShopping(index) {
+            appData.customShopping.splice(index, 1);
+            saveDataToCloud();
+            renderUI();
+        }
+
+        function addNoteFromMain() {
+            const text = document.getElementById('noteTextMain').value.trim();
+            if (!text) return alert('Please enter a note');
+            const shortDateStr = getShortFormattedDate();
+            if (!appData.notes) appData.notes = [];
+            appData.notes.unshift({ text, time: shortDateStr });
+            document.getElementById('noteTextMain').value = '';
+            toggleEdit('noticeEditBox');
+            saveDataToCloud();
+            renderUI();
+        }
+
+        function deleteNote(index) {
+            appData.notes.splice(index, 1);
+            editingNoticeIndex = null;
+            saveDataToCloud();
+            renderUI();
+        }
+
+        loadDataFromCloud();
+        setInterval(loadDataFromCloud, 10000);
+    </script>
+</body>
+</html>
